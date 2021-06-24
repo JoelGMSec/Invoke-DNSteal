@@ -2,7 +2,7 @@
 
 **Invoke-DNSteal** is a Simple & Customizable DNS Data Exfiltrator.
 
-This tool helps you to automate the obfuscation process of any script written in PowerShell with different techniques. You can use any of them separately, together or all of them sequentially with ease, from Windows or Linux.
+This tool helps you to exfiltrate data through DNS protocol over UDP and TCP, and lets you control the size of queries using random delay. Also, allows you to avoid detections by using random domains in each of your queries and you can use it to transfer information both locally and remotely.
 
 
 # Requirements
