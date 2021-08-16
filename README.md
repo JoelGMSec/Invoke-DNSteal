@@ -33,20 +33,20 @@ git clone https://github.com/JoelGMSec/Invoke-DNSteal.git
  Info:  This tool helps you to exfiltrate data through DNS protocol
         and lets you control the size of queries using random delay
 
- Usage: .\Invoke-DNSteal.ps1 -t target -p payload -l lenght
+ Usage: .\Invoke-DNSteal.ps1 -t target -p payload -l length
          -s server -tcponly true/false -min 3000 -max 5000
 
  Parameters:
        · Target:      Domain target to exfiltrate data
        · Payload:     Payload to send over DNS chunks
-       · Lenght:      Lenght of payload to control data size
+       · Length:      Length of payload to control data size
        · Server:      Custom server to resolve DNS queries
        · TcpOnly:     Set TcpOnly to true or false
        · Delay Min:   Min delay time to do a query in ms
        · Delay Max:   Max delay time to do a query in ms
        · Random:      Use random domain name to avoid detection
 
- Warning: The lenght (payload size) must be between 4 and 240
+ Warning: The length (payload size) must be between 4 and 240
           The process time will increase depending on data size
 ```
 
