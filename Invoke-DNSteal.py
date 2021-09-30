@@ -55,7 +55,7 @@ class DnsQuery:
    if "-tcp" in mode:
     hexdata= ord(self.data[1]) + 0x10
     packet+=self.data[0] + chr(hexdata)
-    packet+="\x00\x01\x85\x80\x00\x01\x00\x01"
+    packet+=self.data[2:4] + '\x85\x80\x00\x01\x00\x01'
     packet+=self.data[10:]
     packet+='\xc0\x0c'
     packet+='\x00\x01\x00\x01\x00\x00\x00\x00\x00\x04'
