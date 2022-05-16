@@ -20,7 +20,7 @@ print("""\033[1;32m
 
 # Help
 def help(str=""):
- print("\n\033[1;33mUsage: \033[0mpython %s [listen_address] -udp/-tcp" % sys.argv[0])
+ print("\n\033[1;33mUsage: \033[0m./Invoke-DNSteal.py [listen_address] -udp/-tcp")
  print(str)
 
 # DNS Query
@@ -69,9 +69,9 @@ def getext(rawdata):
    startend = (key.split('.')[1:3])
 
    for i in range(len(startend)):
-    if startend[i] == "start":
+    if startend[i] == "end":
      ext = startend[0]
-     if ext == "start":
+     if ext == "end":
       ext = "txt"
   return ext
 
@@ -144,6 +144,8 @@ def decodedata(rawdata):
   f = open(file, 'w')
   f.writelines(outdata)
   f.close()
+
+  print("\033[1;33m[>] DNS Data Saved to dnsteal_%s.%s\033[0m" % (date, ext))
 
  except:
   print("\033[1;31m[!] Error saving data to %s!" % (file))
@@ -230,7 +232,6 @@ if __name__ == '__main__':
    
    if "end" in str(rawdata):
     date = time.strftime("%H.%M-%d.%m") ; ext = getext(rawdata)
-    print("\033[1;33m[>] DNS Data Saved to dnsteal_%s.%s\033[0m" % (date, ext))
     decodedata(rawdata) ; rawdata = {}
 
 # Exit & Close Sockets
