@@ -109,7 +109,8 @@ def savedata(rawdata):
  ext = getext(rawdata)
  sorted_data = sortedata(rawdata)
  date = time.strftime("%H.%M-%d.%m")
- file = "dnsteal_%s.%s" % (date, ext)
+ currentdir = os.getcwd()
+ file =  currentdir + "/Downloads/dnsteal_%s.%s" % (date, ext)
 
  for key in sorted_data:
   cleandata = '.'.join(key.split('.')[0:-3])
@@ -238,4 +239,3 @@ if __name__ == '__main__':
  except KeyboardInterrupt:
   print('\n\033[1;31m[!] Ctrl+C pressed! Exiting..\033[0m\n')
   udp.close() ; tcp.close()
-  
