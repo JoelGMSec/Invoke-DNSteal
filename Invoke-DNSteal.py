@@ -108,7 +108,7 @@ def deletedots(cleandata):
 def savedata(rawdata):
  ext = getext(rawdata)
  sorted_data = sortedata(rawdata)
- date = time.strftime("%H.%M-%d.%m")
+ date = time.strftime("%H.%M.%S-%d.%m")
  currentdir = os.getcwd()
  file =  currentdir + "/Downloads/dnsteal_%s.%s" % (date, ext)
 
@@ -232,7 +232,7 @@ if __name__ == '__main__':
     rawdata[request].append(d)
    
    if "end" in str(rawdata):
-    date = time.strftime("%H.%M-%d.%m") ; ext = getext(rawdata)
+    date = time.strftime("%H.%M.%S-%d.%m") ; ext = getext(rawdata)
     decodedata(rawdata) ; rawdata = {}
 
 # Exit & Close Sockets
